@@ -18,6 +18,7 @@ __all__ = [
     "pca_compress",
     "random_project",
     "reconstruction_error",
+    "retained_variance",
 ]
 
 
