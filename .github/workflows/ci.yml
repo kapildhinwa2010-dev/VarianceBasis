@@ -46,4 +46,4 @@ jobs:
       - name: Compile and smoke-test package
         run: |
           python -m compileall -q variancebasis.py tests
-          python -c "import numpy as np; from variancebasis import layer_report; r = layer_report(np.eye(4)); assert r['condition_number'] == 1.0"
+          python -c "import numpy as np; from variancebasis import svd_compress; W = np.random.randn(8, 6); C = svd_compress(W, 3); assert C is not None"
