@@ -1,41 +1,53 @@
 # VarianceBasis
 
-Activation compression and analysis.
+[![CI](https://github.com/kapildhinwa2010-dev/VarianceBasis/actions/workflows/ci.yml/badge.svg)](https://github.com/kapildhinwa2010-dev/VarianceBasis/actions/workflows/ci.yml)
+[![CI](https://github.com/kapildhinwa2010-dev/VarianceBasis/actions/workflows/codeql.yml/badge.svg)](https://github.com/kapildhinwa2010-dev/VarianceBasis/actions/workflows/codeql.yml)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
+Variance-ranked basis extraction from activation matrices (SVD, PCA, random projection).
 
 **Part of the [Kapildhinwa2010-dev Toolkit](https://github.com/kapildhinwa2010-dev/Kapildhinwa2010-dev).**
 
-![CI](https://github.com/kapildhinwa2010-dev/VarianceBasis/actions/workflows/ci.yml/badge.svg)
-![CodeQL](https://github.com/kapildhinwa2010-dev/VarianceBasis/actions/workflows/codeql.yml/badge.svg)
-![Python](https://img.shields.io/badge/python-3.9%2B-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
+## What it does
 
-## ✨ Features
+ActivationStore collects per-layer activation batches into one matrix.
+Three projectors are included: svd_compress (truncated SVD, returns
+u/s/vt), pca_compress (covariance eigendecomposition, returns scores/
+mean/components), and random_project (Johnson-Lindenstrauss Gaussian).
+reconstruction_error() and retained_variance() score the results.
 
-- Truncated SVD, PCA and random-projection compressors
-- Relative reconstruction error and retained variance
-- `ActivationStore` collects per-layer batches
+## Install
 
-## 📦 Install
+    pip install -r requirements.txt
 
-```bash
-pip install -r requirements.txt
-```
+## Quick start
 
-## 🚀 Quick start
+    from variancebasis import ActivationStore, svd_compress, retained_variance
 
-```python
-from variancebasis import svd_compress, retained_variance
+    store = ActivationStore()
+    store.add("fc1", batch_activations)
+    u, s, vt = svd_compress(store.matrix("fc1"), rank=8)
+    print(retained_variance(s, 8))
 
-u, s, vt = svd_compress(A, rank=4)
-print(retained_variance(s, 4))
-```
+## API
 
-## 🧪 Tests
+- ActivationStore: add, matrix, layers
+- svd_compress(matrix, rank=8), pca_compress(matrix, components=8),
+  random_project(matrix, dim=16, seed=0)
+- reconstruction_error(matrix, approx), retained_variance(s, rank)
 
-```bash
-pytest tests/ -v
-```
+## Honest results and limitations
 
-## 📄 License
+- SVD and PCA are deterministic and lossy by rank; random projection
+  error depends on the spectrum and target dim (JL bounds are
+  probabilistic).
+- pca_compress returns centered scores - reconstruct by scores @
+  components.T + mean, or error will look huge.
+- No accuracy-after-compression evaluation is included; this measures
+  reconstruction, not downstream task behaviour.
+- Full SVD/eigendecomposition per matrix: research scale only.
 
-MIT — see [LICENSE](LICENSE).
+## License
+
+MIT - see [LICENSE](LICENSE).
